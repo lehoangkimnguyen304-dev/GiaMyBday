@@ -1,3 +1,11 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fdf6f8">
+<meta name="description" content="Thiệp sinh nhật 20 tuổi của Gia Mỹ. Làm một chiếc bánh kem và gửi lời chúc.">
+<meta property="og:title" content="GMY BDAYYY">
+<meta property="og:description" content="Thiệp sinh nhật 20 tuổi của Gia Mỹ. Bake a wish: làm một chiếc bánh kem tặng Gia Mỹ.">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,sans-serif;-webkit-text-size-adjust:100%}img{max-width:100%}[hidden]{display:none!important}</style>
+</head><body>
 <title>GMY BDAYYY</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -281,6 +289,41 @@ body.open .cue{opacity:1;}
 .v-from small{display:block;font-family:var(--sans);font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:#9c3f68;margin-bottom:6px;}
 .v-act{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
 @media (prefers-reduced-motion:reduce){#vBox *,#vCake{transition:none!important}#vCake .cmsg{animation:none}}
+
+/* ===== phone layout ===== */
+.btn{white-space:nowrap;}
+.bk-cake{width:min(96cqw,98cqh);}
+@media (max-width:560px){
+  .bk-head{gap:8px;padding-block:8px;}
+  .bk-x{padding:8px 11px;font-size:12px;}
+  .bk-panel{padding-top:12px;max-height:46dvh;border-radius:18px 18px 0 0;}
+  .pn{gap:9px;}
+  .pn h3{font-size:15px;}
+  .pn h3 small{display:block;margin:3px 0 0;font-size:12px;line-height:1.35;}
+  .it{min-width:60px;padding:6px 6px 5px;font-size:11px;border-radius:12px;}
+  .it svg{width:36px;height:30px;}
+  .tabs button{padding:7px 12px;font-size:12.5px;}
+  .chip{padding:6px 11px;font-size:12px;}
+  .sw{width:34px;height:34px;}
+  .swrow{gap:10px;}
+  .nav{gap:6px;}
+  .nav .row{gap:0;flex-wrap:nowrap;}
+  .btn{padding:10px 15px;font-size:13px;}
+  .btn.ghost{padding:10px 7px;}
+  .field{font-size:12px;}
+  .field input{padding:10px 12px;font-size:16px;}
+  .note{font-size:12px;}
+  .bk-gal{padding-top:20px;}
+  .gal-title{font-size:clamp(42px,12.5vw,104px);}
+  .gal-sub{margin-bottom:16px;}
+  .gal-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 8px;}
+  .v-stage{width:min(100%,50dvh);}
+  .v-from{font-size:36px;}
+  .toast{font-size:12px;top:8px;}
+  .win{width:22cqw;}
+  .shelf{width:36cqw;}
+  .fg.bowl{width:34cqw;} .fg.bag{width:26cqw;}
+}
 </style>
 
 <div class="bg" aria-hidden="true"></div>
@@ -898,7 +941,7 @@ let camE=E0,camRaf=0;
 function vbFor(e,ck=cake){
   const base=[0,40,400,400];if(!ck.tiers.length||e<=E0+.01)return base;
   const t=clamp((e-E0)/(ETOP-E0),0,1),G=withView(viewFor(ETOP),()=>geom(ck)),gt=G[G.length-1];
-  const S=Math.max(gt.R*2.75,170),tb=[CX-S/2,gt.yt-S/2,S,S];
+  const S=Math.max(gt.R*3,190),tb=[CX-S/2,gt.yt-S/2,S,S];
   const ease=t*t*(3-2*t);return base.map((b,i)=>b+(tb[i]-b)*ease);
 }
 function animateCam(target,ms,done){
@@ -1304,3 +1347,5 @@ if('IntersectionObserver' in window&&!reduce){
 }else wish.classList.remove('pre');
 })();
 </script>
+
+</body></html>
