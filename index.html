@@ -1142,8 +1142,15 @@ function writeMsg(){
 
 /* ---------- shared box: Just for Gia Mỹ ---------- */
 let db=null, canWrite=null, shared=[], local=[], unsub=null;
+/* outside claude.ai (e.g. Vercel) the shared box lives behind /api/cakes */
+let apiMode=false,apiTimer=0;
+async function apiLoad(){
+  try{const r=await fetch('/api/cakes',{cache:'no-store'});if(!r.ok)return;const j=await r.json();
+    shared=(j.cakes||[]).map(c=>({id:c.id,...(clean(c)||{})})).filter(c=>c.tiers);
+    if(!$('gallery').hidden&&$('viewer').hidden)renderGallery();}catch(e){}
+}
 async function initDb(){
-  if(!window.claude||!window.claude.use)return;
+  if(!window.claude||!window.claude.use){apiMode=true;apiLoad();return;}
   try{const u=await window.claude.use('user');if(u&&u.can){const w=await u.can('data.write');if(w===false)canWrite=false;}}catch(e){}
   try{db=await window.claude.use('db');}catch(e){db=null;}
   if(!db)return;
@@ -1156,7 +1163,9 @@ async function send(){
   const data=clean({...cake,at:Date.now()});if(!data)return;
   const btn=panel.querySelector('[data-act="send"]');if(btn){btn.disabled=true;btn.textContent='Đang gửi…';}
   let ok=false;
-  if(db&&canWrite!==false){try{await db.collection('cakes').add(data);ok=true;}catch(e){if(e&&e.code==='quota_exceeded')toast('Hộp bánh đã đầy, chưa gửi được');}}
+  if(apiMode){try{const r=await fetch('/api/cakes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+      if(r.ok){ok=true;await apiLoad();}else if(r.status===429)toast('Bạn gửi hơi nhanh, thử lại sau ít phút nhé');}catch(e){}}
+  else if(db&&canWrite!==false){try{await db.collection('cakes').add(data);ok=true;}catch(e){if(e&&e.code==='quota_exceeded')toast('Hộp bánh đã đầy, chưa gửi được');}}
   if(!ok){canWrite=false;local.unshift({...data,id:'local'+Date.now(),mine:true});toast('Chưa gửi được vào hộp chung, bánh được giữ trên máy bạn');}
   sent=true;setTimeout(showGallery,ok?500:1400);
 }
@@ -1250,6 +1259,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('viewer').hidden
 function showGallery(){
   if(writing)return;
   $('gallery').hidden=false;panel.hidden=true;stepsNav();
+  if(apiMode){apiLoad();clearInterval(apiTimer);apiTimer=setInterval(()=>{if($('gallery').hidden||bk.hidden){clearInterval(apiTimer);return;}apiLoad();},20000);}
   $('steps').querySelectorAll('button').forEach(b=>b.classList.remove('on'));$('steps').querySelector('.gal')?.classList.add('on');
   renderGallery();
 }
