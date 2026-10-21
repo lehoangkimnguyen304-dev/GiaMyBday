@@ -1143,9 +1143,9 @@ function writeMsg(){
 /* ---------- shared box: Just for Gia Mỹ ---------- */
 let db=null, canWrite=null, shared=[], local=[], unsub=null;
 /* outside claude.ai (e.g. Vercel) the shared box lives behind /api/cakes */
-let apiMode=false,apiTimer=0;
+let apiMode=false,apiTimer=0,apiState='';
 async function apiLoad(){
-  try{const r=await fetch('/api/cakes',{cache:'no-store'});if(!r.ok)return;const j=await r.json();
+  try{const r=await fetch('/api/cakes',{cache:'no-store'});if(!r.ok){apiState=r.status===503?'nostore':'err'+r.status;if(!$('gallery').hidden)renderGallery();return;}apiState='ok';const j=await r.json();
     shared=(j.cakes||[]).map(c=>({id:c.id,...(clean(c)||{})})).filter(c=>c.tiers);
     if(!$('gallery').hidden&&$('viewer').hidden)renderGallery();}catch(e){}
 }
@@ -1209,8 +1209,9 @@ function renderGallery(){
   const all=[...local,...shared];galItems=all;
   $('galCount').textContent=all.length?`${all.length} hộp bánh đã đến tay`:'chưa có hộp bánh nào';
   const g=$('galGrid');
-  if(!all.length){g.innerHTML=`<p class="gal-empty">Kệ bánh còn trống. Hãy là người đầu tiên làm bánh tặng ${NAME}.</p>`;return;}
-  g.innerHTML='';
+  const note=apiMode&&apiState&&apiState!=='ok'?`<p class="gal-empty" style="grid-column:1/-1;color:#b23a5e">${apiState==='nostore'?'Kệ bánh chung chưa được kết nối kho dữ liệu, nên bánh chỉ được giữ trên máy bạn.':'Chưa tải được kệ bánh chung ('+apiState+'). Thử tải lại trang sau ít phút.'}</p>`:'';
+  if(!all.length){g.innerHTML=note+`<p class="gal-empty" style="grid-column:1/-1">Kệ bánh còn trống. Hãy là người đầu tiên làm bánh tặng ${NAME}.</p>`;return;}
+  g.innerHTML=note;
   all.forEach((c,i)=>{
     const b=document.createElement('button');b.className='gbox';b.type='button';b.dataset.i=i;
     b.setAttribute('aria-label','Mở hộp bánh từ '+((c.from&&c.from.trim())||'một người bí mật'));
