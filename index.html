@@ -338,6 +338,8 @@ body.open .cue{opacity:1;}
 .adm-card p{margin:0;font-size:14px;line-height:1.5;color:#6d5a60;}
 .adm-card input{font:500 16px var(--sans);padding:11px 13px;border:1.5px solid #ecd3db;border-radius:12px;}
 .adm-act{display:flex;gap:8px;justify-content:flex-end;}
+.gitem.gone{animation:boxGone .5s cubic-bezier(.5,0,.75,0) forwards;pointer-events:none;}
+@keyframes boxGone{30%{transform:scale(1.06) rotate(-3deg)}to{transform:scale(.2) translateY(30px) rotate(12deg);opacity:0}}
 </style>
 
 <div class="bg" aria-hidden="true"></div>
@@ -1339,12 +1341,16 @@ function askDelete(id,i){
   $('delYes').onclick=async()=>{
     $('delYes').disabled=true;$('delYes').textContent='Đang xoá…';
     try{const r=await fetch('/api/cakes?id='+encodeURIComponent(id),{method:'DELETE',headers:{'x-admin-key':adminKey}});
-      if(r.ok){d.remove();shared=shared.filter(s=>s.id!==id);renderGallery();toast('Đã xoá hộp bánh');apiLoad();return;}
+      if(r.ok||r.status===404){d.remove();vanish(id);return;}
       if(r.status===401){adminKey='';try{localStorage.removeItem('gmyAdminKey');}catch(e){}d.remove();adminBar();renderGallery();toast('Sai mã quản lý, đã thoát chế độ quản lý');return;}
-      if(r.status===503){d.remove();toast('Chưa đặt ADMIN_KEY trên Vercel');return;}
-      if(r.status===404){d.remove();apiLoad();toast('Hộp bánh này đã được xoá trước đó');return;}
+      if(r.status===503){d.querySelector('p').textContent='Chưa xoá được vì Vercel chưa có ADMIN_KEY. Vào Settings → Environment Variables thêm ADMIN_KEY, rồi Redeploy.';$('delYes').remove();$('delNo').textContent='Đã hiểu';return;}
       throw 0;}catch(e){$('delYes').disabled=false;$('delYes').textContent='Xoá vĩnh viễn';toast('Chưa xoá được, thử lại nhé');}
   };
+}
+function vanish(id){
+  const it=[...document.querySelectorAll('.gx')].find(x=>x.dataset.id===id)?.closest('.gitem');
+  const done=()=>{shared=shared.filter(s=>s.id!==id);renderGallery();toast('Đã xoá hộp bánh');};
+  if(it&&!reduce){it.classList.add('gone');setTimeout(done,520);}else done();
 }
 function checkAdminHash(){if(apiMode&&location.hash==='#quanly'){history.replaceState(null,'',location.pathname+location.search);if(adminKey){openBakery(true);setTimeout(()=>{adminBar();renderGallery();},2900);}else adminLogin();}}
 addEventListener('hashchange',checkAdminHash);
