@@ -10,3 +10,7 @@ Mở `index.html` trong trình duyệt là chạy. Để bật GitHub Pages: Set
 Bật một lần: Vercel → project → **Storage** → **Upstash for Redis** → tạo database → **Connect** vào project này → **Redeploy**.
 API đọc biến môi trường `KV_REST_API_URL`/`KV_REST_API_TOKEN` (hoặc `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN`).
 Chưa kết nối thì bánh chỉ được giữ trên máy người làm.
+
+## Xoá hộp bánh lỗi
+
+Đặt biến môi trường `ADMIN_KEY` trên Vercel (Settings → Environment Variables), Redeploy, rồi mở `https://<web>/#quanly` và nhập mã đó. Mỗi hộp bánh sẽ có nút × để xoá. Không có mã thì không ai xoá được.

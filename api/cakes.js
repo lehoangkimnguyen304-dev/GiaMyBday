@@ -7,6 +7,7 @@
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 const KEY = 'giamy:cakes';
+const ADMIN_KEY = process.env.ADMIN_KEY || '';
 const MAX_KEEP = 1000;
 
 async function redis(...cmd) {
@@ -66,7 +67,19 @@ export default async function handler(req, res) {
       await redis('LTRIM', KEY, '0', String(MAX_KEEP - 1));
       return res.status(200).json({ ok: true, id: cake.id });
     }
-    res.setHeader('Allow', 'GET, POST');
+    if (req.method === 'DELETE') {
+      const given = String(req.headers['x-admin-key'] || '');
+      if (!ADMIN_KEY) return res.status(503).json({ error: 'admin_not_set' });
+      if (given !== ADMIN_KEY) return res.status(401).json({ error: 'wrong_key' });
+      const id = String((req.query && req.query.id) || '');
+      if (!id) return res.status(400).json({ error: 'no_id' });
+      const raw = (await redis('LRANGE', KEY, '0', '-1')) || [];
+      const hit = raw.find(x => { try { return JSON.parse(x).id === id; } catch { return false; } });
+      if (!hit) return res.status(404).json({ error: 'not_found' });
+      await redis('LREM', KEY, '1', hit);
+      return res.status(200).json({ ok: true });
+    }
+    res.setHeader('Allow', 'GET, POST, DELETE');
     return res.status(405).json({ error: 'method' });
   } catch (e) {
     return res.status(502).json({ error: 'storage_error' });
